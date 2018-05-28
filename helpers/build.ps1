@@ -1,6 +1,6 @@
 $ScriptDir = Split-Path -Path $script:MyInvocation.MyCommand.Path -Parent
 $ModuleDir = Split-Path -Path $ScriptDir -Parent
-$SrcDir = Join-Path -Path $ModuleDir -ChildPath "src"
+$SrcDir = Join-Path -Path $ModuleDir -ChildPath "src\ZbxVeeam"
 
 $ModuleManifest = Join-Path -Path $SrcDir -ChildPath "ZbxVeeam.psd1"
  
@@ -15,14 +15,15 @@ Write-Host "Src directory   : $SrcDir"
 function Update-ModuleVersion {
     $content = Get-Content -Path $ModuleManifest
 
-    $newVersion = Get-Date -Format "yy.MM.dd.hhmmss"
+    $newVersion = Get-Date -Format "yy.MM.dd.HHmmss"
     Write-Host "new version: $newVersion"
 
-    $block = 'ModuleVersion     = \''.*\'''
+    $block = 'ModuleVersion         = \''.*\'''
 
     $replace = "ModuleVersion     = `'$newVersion`'"
 
     $content = $content -replace $block, $replace
+
     Set-Content -Path $ModuleManifest -Value $content
 }
 
