@@ -103,21 +103,41 @@ function Convert-DateString ([String]$Date, [String[]]$Format) {
 
 function Install-ForAgent {
     param(
-        $AgentPath = "C:\Program Files\zabbix_agent"
+        $ZbxVeeamConfFile = "C:\Program Files\zabbix_agent\conf\zbx_veeam.conf",
+        $ZabbixConfFile = "C:\Program Files\zabbix_agent\conf\zabbix_agentd.win.conf",
+        [switch]$AddInclude,
+        [switch]$NoRestartAgent
     )
     Process {
-        if ( ( Test-Path $AgentPath ) -eq $false ) {
-            Write-Error "Agent Path not found"
-        }
-
-        $agentConfig = Join-Path -Path $AgentPath -ChildPath "conf\zbx_veeam.conf"
-
         $content = @(
             'UserParameter=zbxveeam[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args }" ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'' ''$8'' ''$9'''
             'UserParameter=zbxveeam.discover.jobs[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args }" ''discover'' ''jobs'' ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'''
             'UserParameter=zbxveeam.job.details[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args}" ''job'' ''details'' ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'''
         )
+        Set-Content -Value $content -Path $ZbxVeeamConfFile -Force
 
-        Set-Content -Value $content -Path $agentConfig -Force
+        $find = "^Include={0}$" -f $ZbxVeeamConfFile.Replace("\", "\\")
+        
+        if ( $AddInclude ) {
+            $found = 0
+            $conf = Get-Content -Path $ZabbixConfFile
+            $conf | ForEach-Object {
+                if ( $_ -match $find ) {
+                    $found = $found + 1
+                }
+            }
+
+            if ( $found -gt 0 ) {
+                Write-Host "already included"
+            }
+            else {
+                $append = "Include={0}" -f $ZbxVeeamConfFile
+                Add-Content -Path $ZabbixConfFile -Value $append
+            }
+        }
+
+        if ( $NoRestartAgent -eq $false ) {
+            Restart-Service "Zabbix Agent" -Force
+        }
     }
 }
