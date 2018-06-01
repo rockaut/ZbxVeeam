@@ -128,7 +128,7 @@ function Install-ForAgent {
             }
 
             if ( $found -gt 0 ) {
-                Write-Host "already included"
+                #
             }
             else {
                 $append = "Include={0}" -f $ZbxVeeamConfFile
