@@ -1,4 +1,4 @@
-function Get-ZVJobDetails {
+function Get-JobDetails {
     <#
 	.SYNOPSIS
 	.DESCRIPTION
@@ -48,7 +48,7 @@ function Get-ZVJobDetails {
             $data['ScheduleOptions']['LatestRun'] = [Math]::Floor((New-TimeSpan -Start $dateBase -End $job.ScheduleOptions.LatestRunLocal).TotalSeconds)
 
             if ( $job.ScheduleOptions.NextRun -ne "" ) {
-                $nextDate = Convert-ZVDateString $job.ScheduleOptions.NextRun "MM/dd/yyyy HH:mm:ss"
+                $nextDate = Convert-DateString $job.ScheduleOptions.NextRun "MM/dd/yyyy HH:mm:ss"
                 $data['ScheduleOptions']['NextRun'] = [Math]::Floor((New-TimeSpan -Start $dateBase -End $nextDate).TotalSeconds)
             }
             else {

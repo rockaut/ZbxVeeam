@@ -12,7 +12,7 @@
     # RootModule        = ''
 
     # Version number of this module.
-    ModuleVersion     = '18.05.28.170313'
+    ModuleVersion     = '18.06.01.091404'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -66,7 +66,7 @@
     # FormatsToProcess = @()
 
     # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-    NestedModules         = @( 'ZbxVeeam.psm1', 'Get-ZVDiscoverJobs.psm1', 'Get-ZVJobDetails.psm1' )
+    NestedModules         = @( 'ZbxVeeam.psm1', 'Get-DiscoverJobs.psm1', 'Get-JobDetails.psm1' )
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport     = '*'
@@ -96,7 +96,7 @@
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData           = @{
 
-        ZbxVeeamDefaults = @{
+        Defaults = @{
             Server  = 'localhost'
             Port    = 9392
             Timeout = 5
@@ -108,7 +108,7 @@
             Arg6    = ''
         }
 
-        PSData           = @{
+        PSData   = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags       = @( 'Zabbix', 'Powershell', 'Veeam' )
@@ -133,6 +133,6 @@
     # HelpInfoURI = ''
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-    # DefaultCommandPrefix = ''
+    DefaultCommandPrefix  = 'ZbxVeeam'
 
 }

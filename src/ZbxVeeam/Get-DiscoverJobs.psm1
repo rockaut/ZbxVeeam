@@ -1,4 +1,4 @@
-function Get-ZVDiscoverJobs {
+function Get-DiscoverJobs {
     <#
 	.SYNOPSIS
 	.DESCRIPTION
