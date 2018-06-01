@@ -1,5 +1,7 @@
 param(
-    
+    [switch]$NoBuild,
+    [switch]$PublishPowershellGallery,
+    [string]$PowershellGalleryAPIKey = ""
 )
 
 $ScriptDir = Split-Path -Path $script:MyInvocation.MyCommand.Path -Parent
@@ -44,9 +46,16 @@ function Update-ModuleVersion {
 ##
 ##
 
-Update-ModuleVersion
+if ( $NoBuild -eq $false ) {
+    Update-ModuleVersion
+}
+
 Deploy-Module
-
 Import-Module ZbxVeeam -Force
-
 Get-Module | Format-List
+
+if ( $PublishPowershellGallery ) {
+    if ( $PowershellGalleryAPIKey -ne "" ) {
+        Publish-Module -Name ZbxVeeam -NuGetApiKey $PowershellGalleryAPIKey -Verbose
+    }
+}
