@@ -57,5 +57,7 @@ Get-Module | Format-List
 if ( $PublishPowershellGallery ) {
     if ( $PowershellGalleryAPIKey -ne "" ) {
         Publish-Module -Name ZbxVeeam -NuGetApiKey $PowershellGalleryAPIKey -Verbose
+    } else {
+        throw "API Key not provided"
     }
 }
