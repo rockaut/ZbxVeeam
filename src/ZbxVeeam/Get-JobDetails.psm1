@@ -94,6 +94,38 @@ function Get-JobDetails {
 
                 $data['RetryCount'] = ($lastsession.GetOriginalAndRetrySessions($true).Count - 1)
 
+            } else {
+                $data['lastSession'] = @{}
+                $data['lastSession']['Info'] = @{}
+                $data['lastSession']['Stats'] = @{}
+
+                $data['lastSession']['Result'] = "none"
+                $data['lastSession']['State'] = "none"
+                $data['lastSession']['BaseProgress'] = 0
+                $data['lastSession']['IsCompleted'] = $true
+                $data['lastSession']['IsWorking'] = $false
+            
+                $data['lastSession']['Info']['Failures'] = 0
+                $data['lastSession']['Info']['Warnings'] = 0
+                $data['lastSession']['Info']['BackedUpSize'] = 0
+                $data['lastSession']['Info']['BackupTotalSize'] = 0
+                $data['lastSession']['Info']['IsRetryMode'] = $false
+                $data['lastSession']['Info']['IsActiveFullMode'] = $false
+                $data['lastSession']['Info']['IsFullMode'] = $false
+                $data['lastSession']['Info']['WillBeRetried'] = $false
+                $data['lastSession']['Info']['RunManually'] = $false
+
+                $data['lastSession']['Info']['TotalObjects'] = 0
+                $data['lastSession']['Info']['AvgSpeed'] = 0
+                $data['lastSession']['Info']['TransferedSize'] = 0
+                $data['lastSession']['Info']['Duration'] = 0
+                $data['lastSession']['Info']['TotalSize'] = 0
+            
+                $data['lastSession']['Stats']['DataSize'] = 0
+                $data['lastSession']['Stats']['DedupRatio'] = 0
+                $data['lastSession']['Stats']['CompressRatio'] = 0
+
+                $data['RetryCount'] = 0
             }
 
             if ( $lastsession.IsActiveFullMode -or $lastsession.IsFullMode ) {
