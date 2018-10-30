@@ -69,6 +69,9 @@ function Get-Wrapper {
                     'jobs' {
                         Get-DiscoverJobs -Type $arg3
                     }
+                    'repositories' {
+                        Get-DiscoverRepositories
+                    }
                     Default {}
                 }
             }
@@ -76,6 +79,17 @@ function Get-Wrapper {
                 switch ( $arg2.ToString().ToLower() ) {
                     'details' {
                         Get-JobDetails -Job $arg3 -Processing $arg4
+                    }
+                    Default {}
+                }
+            }
+            "repository" {
+                switch ( $arg2.ToString().ToLower() ) {
+                    'details' {
+                        Get-RepositoryDetails -Name $arg3 -Processing $arg4
+                    }
+                    'data' {
+                        Get-RepositoryData -Name $arg3
                     }
                     Default {}
                 }

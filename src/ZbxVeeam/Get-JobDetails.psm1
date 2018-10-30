@@ -13,7 +13,7 @@ function Get-JobDetails {
         if ( $JobName -eq 'all' -or $JobName -eq '*' -or $JobName -eq $null ) {
             $JobName = '*'
         }
-        if ( $Processing -notin @('out', 'send', 'raw') ) {
+        if ( $Processing -notin @('out', 'send', 'raw', 'cache') ) {
             $Processing = 'out'
         }
 
@@ -176,9 +176,13 @@ function Get-JobDetails {
             }
             elseif ( $Processing -eq "raw" ) {
                 Write-Output $job
+            } else {
+                $path = "C:\Windows\Temp\{0}.data.json" -f $job.Id
+                $json | Out-File -FilePath $path -Encoding utf8 -Force
             }
 
+            
         } # End foreach jobs
 
-    }
+    } # End process
 }
