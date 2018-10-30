@@ -78,7 +78,7 @@ function Get-Wrapper {
             "job" {
                 switch ( $arg2.ToString().ToLower() ) {
                     'details' {
-                        Get-JobDetails -Job $arg3 -Processing $arg4
+                        Get-JobDetails -Job $arg3 -Processing $arg4 -NameMatch $arg5 -TypeMatch $arg6
                     }
                     Default {}
                 }

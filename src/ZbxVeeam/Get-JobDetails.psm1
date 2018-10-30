@@ -7,21 +7,21 @@ function Get-JobDetails {
     #>
     param(
         $JobName = '*',
-        $Processing = 'out'
+        $Processing = 'out',
+        $NameMatch = "^.*$",
+        $TypeMatch = "^.*$"
     )
     Begin {
-        if ( $JobName -eq 'all' -or $JobName -eq '*' -or $JobName -eq $null ) {
-            $JobName = '*'
-        }
-        if ( $Processing -notin @('out', 'send', 'raw', 'cache') ) {
-            $Processing = 'out'
-        }
+        if ( $JobName -eq 'all' -or $JobName -eq '*' -or $JobName -eq $null ) { $JobName = '*' }
+        if ( $Processing -notin @('out', 'send', 'raw', 'cache') ) { $Processing = 'out' }        
+        if ( $NameMatch -eq $null -or $NameMatch -eq "" ) { $NameMatch = "^.*$" }
+        if ( $TypeMatch -eq $null -or $TypeMatch -eq "" ) { $TypeMatch = "^.*$" }
 
         $dateBase = Get-Date -Date "01/01/1970"
     }
     Process {
     
-        $jobs = Get-VBRJob -Name $JobName
+        $jobs = (Get-VBRJob -Name $JobName) | where { $_.Name -match $NameMatch -and $_.JobType -match $TypeMatch }
 
         $jobs | ForEach-Object {
             $job = $_
@@ -34,11 +34,11 @@ function Get-JobDetails {
             $data['Id'] = $job.Id
             $data['Server'] = (Get-VBRServerSession).Server.ToString()
 
-            $data['IsRunning'] = $job.IsRunning
-            $data['IsRequireRetry'] = $job.IsRequireRetry
-            $data['IsScheduleEnabled'] = $job.IsScheduleEnabled
-            $data['IsChainedJob'] = ($job.PreviousJobIdInScheduleChain -ne $null)
-            $data['HasLinkedJobs'] = ($job.LinkedJobs.Count -gt 0 )
+            $data['IsRunning'] = [int]([bool]::Parse($job.IsRunning.ToString()))
+            $data['IsRequireRetry'] = [int]([bool]::Parse($job.IsRequireRetry.ToString()))
+            $data['IsScheduleEnabled'] = [int]([bool]::Parse($job.IsScheduleEnabled.ToString()))
+            $data['IsChainedJob'] = [int]([bool]::Parse(($job.PreviousJobIdInScheduleChain -ne $null).ToString()))
+            $data['HasLinkedJobs'] = [int]([bool]::Parse(($job.LinkedJobs.Count -gt 0 ).ToString()))
             $data['RetryCount'] = 0
         
             $data['Info']['LatestStatus'] = $job.Info.LatestStatus
@@ -69,18 +69,19 @@ function Get-JobDetails {
                 $data['lastSession']['Result'] = $lastsession.Result
                 $data['lastSession']['State'] = $lastsession.State
                 $data['lastSession']['BaseProgress'] = $lastsession.BaseProgress
-                $data['lastSession']['IsCompleted'] = $lastsession.IsCompleted
-                $data['lastSession']['IsWorking'] = $lastsession.IsWorking
+                $data['lastSession']['IsCompleted'] = [int]([bool]::Parse($lastsession.IsCompleted.ToString()))
+                $data['lastSession']['IsWorking'] = [int]([bool]::Parse($lastsession.IsWorking.ToString()))
             
-                $data['lastSession']['Info']['Failures'] = $lastsession.SessionInfo.Failures
-                $data['lastSession']['Info']['Warnings'] = $lastsession.SessionInfo.Warnings
+                $data['lastSession']['Info']['Failures'] = $lastsession.GetTaskSessionsByStatus("Failed").Count
+                $data['lastSession']['Info']['Warnings'] = $lastsession.GetTaskSessionsByStatus("Warning").Count
                 $data['lastSession']['Info']['BackedUpSize'] = $lastsession.SessionInfo.BackedUpSize
                 $data['lastSession']['Info']['BackupTotalSize'] = $lastsession.SessionInfo.BackupTotalSize
-                $data['lastSession']['Info']['IsRetryMode'] = $lastsession.SessionInfo.IsRetryMode.ToString()
-                $data['lastSession']['Info']['IsActiveFullMode'] = $lastsession.SessionInfo.IsActiveFullMode
-                $data['lastSession']['Info']['IsFullMode'] = $lastsession.SessionInfo.IsFullMode
-                $data['lastSession']['Info']['WillBeRetried'] = $lastsession.SessionInfo.WillBeRetried
-                $data['lastSession']['Info']['RunManually'] = $lastsession.SessionInfo.RunManually
+
+                $data['lastSession']['Info']['IsRetryMode'] = [int]([bool]::Parse($lastsession.SessionInfo.IsRetryMode))
+                $data['lastSession']['Info']['IsActiveFullMode'] = [int]([bool]::Parse($lastsession.SessionInfo.IsActiveFullMode))
+                $data['lastSession']['Info']['IsFullMode'] = [int]([bool]::Parse($lastsession.SessionInfo.IsFullMode))
+                $data['lastSession']['Info']['WillBeRetried'] = [int]([bool]::Parse($lastsession.SessionInfo.WillBeRetried))
+                $data['lastSession']['Info']['RunManually'] = [int]([bool]::Parse($lastsession.SessionInfo.RunManually))
 
                 $data['lastSession']['Info']['TotalObjects'] = $lastsession.SessionInfo.Progress.TotalObjects
                 $data['lastSession']['Info']['AvgSpeed'] = $lastsession.SessionInfo.Progress.AvgSpeed
@@ -92,9 +93,11 @@ function Get-JobDetails {
                 $data['lastSession']['Stats']['DedupRatio'] = $lastsession.BackupStats.DedupRatio
                 $data['lastSession']['Stats']['CompressRatio'] = $lastsession.BackupStats.CompressRatio
 
+                $data['TotalObjects'] = ($lastsession.GetOriginalAndRetrySessions($true)[0]).Progress.TotalObjects
                 $data['RetryCount'] = ($lastsession.GetOriginalAndRetrySessions($true).Count - 1)
 
-            } else {
+            }
+            else {
                 $data['lastSession'] = @{}
                 $data['lastSession']['Info'] = @{}
                 $data['lastSession']['Stats'] = @{}
@@ -102,18 +105,18 @@ function Get-JobDetails {
                 $data['lastSession']['Result'] = "none"
                 $data['lastSession']['State'] = "none"
                 $data['lastSession']['BaseProgress'] = 0
-                $data['lastSession']['IsCompleted'] = $true
-                $data['lastSession']['IsWorking'] = $false
+                $data['lastSession']['IsCompleted'] = [int]$true
+                $data['lastSession']['IsWorking'] = [int]$false
             
                 $data['lastSession']['Info']['Failures'] = 0
                 $data['lastSession']['Info']['Warnings'] = 0
                 $data['lastSession']['Info']['BackedUpSize'] = 0
                 $data['lastSession']['Info']['BackupTotalSize'] = 0
-                $data['lastSession']['Info']['IsRetryMode'] = $false
-                $data['lastSession']['Info']['IsActiveFullMode'] = $false
-                $data['lastSession']['Info']['IsFullMode'] = $false
-                $data['lastSession']['Info']['WillBeRetried'] = $false
-                $data['lastSession']['Info']['RunManually'] = $false
+                $data['lastSession']['Info']['IsRetryMode'] = [int]$false
+                $data['lastSession']['Info']['IsActiveFullMode'] = [int]$false
+                $data['lastSession']['Info']['IsFullMode'] = [int]$false
+                $data['lastSession']['Info']['WillBeRetried'] = [int]$false
+                $data['lastSession']['Info']['RunManually'] = [int]$false
 
                 $data['lastSession']['Info']['TotalObjects'] = 0
                 $data['lastSession']['Info']['AvgSpeed'] = 0
@@ -125,6 +128,7 @@ function Get-JobDetails {
                 $data['lastSession']['Stats']['DedupRatio'] = 0
                 $data['lastSession']['Stats']['CompressRatio'] = 0
 
+                $data['TotalObjects'] = 0
                 $data['RetryCount'] = 0
             }
 
@@ -147,9 +151,9 @@ function Get-JobDetails {
                     $retryDuration = $lastsession.SessionInfo.Progress.Duration.TotalSeconds
                 }
 
-                $data['lastSession']['Info']['TotalObjects'] = ( $lastSession.GetOriginalAndRetrySessions($true).SessionInfo.Progress.TotalObjects | Measure-Object -Sum ).Sum
-                $data['lastSession']['Info']['Failures'] = ( $lastSession.GetOriginalAndRetrySessions($true).SessionInfo.Failures | Measure-Object -Sum ).Sum
-                $data['lastSession']['Info']['Warnings'] = ( $lastSession.GetOriginalAndRetrySessions($true).SessionInfo.Warnings | Measure-Object -Sum ).Sum
+                #$data['lastSession']['Info']['TotalObjects'] = ( $lastSession.GetOriginalAndRetrySessions($true).SessionInfo.Progress.TotalObjects | Measure-Object -Sum ).Sum
+                #$data['lastSession']['Info']['Failures'] = ( $lastSession.GetOriginalAndRetrySessions($true).SessionInfo.Failures | Measure-Object -Sum ).Sum
+                #$data['lastSession']['Info']['Warnings'] = ( $lastSession.GetOriginalAndRetrySessions($true).SessionInfo.Warnings | Measure-Object -Sum ).Sum
 
                 $data['lastSession']['Info']['Duration'] = ( $lastSession.GetOriginalAndRetrySessions($true).Progress.Duration.TotalSeconds | Measure-Object -Sum ).Sum
                 $data['lastSession']['Info']['TotalSize'] = ( $lastSession.GetOriginalAndRetrySessions($true).Progress.TotalSize | Measure-Object -Sum ).Sum
@@ -176,7 +180,8 @@ function Get-JobDetails {
             }
             elseif ( $Processing -eq "raw" ) {
                 Write-Output $job
-            } else {
+            }
+            else {
                 $path = "C:\Windows\Temp\{0}.data.json" -f $job.Id
                 $json | Out-File -FilePath $path -Encoding utf8 -Force
             }
