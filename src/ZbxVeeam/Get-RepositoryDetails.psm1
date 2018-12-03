@@ -69,7 +69,7 @@ function Get-RepositoryDetails {
                 "Info" = @{
                     "CachedTotalSpace" = @{
                         "total" = $currentRep.Info.CachedTotalSpace
-                    },
+                    }
                     "CachedFreeSpace" = @{
                         "total" = $currentRep.Info.CachedFreeSpace
                     }
@@ -109,8 +109,8 @@ function Get-RepositoryDetails {
                 "Name" = $currentSorep.Name
                 "Id"   = $currentRep.Id
                 "Info" = @{
-                    "CachedTotalSpace" = 0
-                    "CachedFreeSpace"  = 0
+                    "CachedTotalSpace" = @{ "total" = 0 }
+                    "CachedFreeSpace"  = @{ "total" = 0 }
                 }
             }
 
