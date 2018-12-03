@@ -67,8 +67,12 @@ function Get-RepositoryDetails {
                 "Name" = $currentRep.Name
                 "Id"   = $currentRep.Id
                 "Info" = @{
-                    "CachedTotalSpace[total]" = $currentRep.Info.CachedTotalSpace
-                    "CachedFreeSpace[total]"  = $currentRep.Info.CachedFreeSpace
+                    "CachedTotalSpace" = @{
+                        "total" = $currentRep.Info.CachedTotalSpace
+                    },
+                    "CachedFreeSpace" = @{
+                        "total" = $currentRep.Info.CachedFreeSpace
+                    }
                 }
             }
 
@@ -114,8 +118,8 @@ function Get-RepositoryDetails {
 
                 $currentRep = $_
 
-                $data["Info"]["CachedTotalSpace[total]"] += $currentRep.Info.CachedTotalSpace
-                $data["Info"]["CachedFreeSpace[total]"] += $currentRep.Info.CachedFreeSpace
+                $data["Info"]["CachedTotalSpace"]["total"] += $currentRep.Info.CachedTotalSpace
+                $data["Info"]["CachedFreeSpace"]["total"] += $currentRep.Info.CachedFreeSpace
 
             }
 
