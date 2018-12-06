@@ -34,7 +34,7 @@ function Get-DiscoverRepositories {
 
             $_.Extent | ForEach-Object {
                 $data += @{
-                    "{#REPID}"   = $_.Id
+                    "{#REPID}"   = $_.Repository.Id
                     "{#REPNAME}" = $_.Name
                     "{#REPTYPE}" = "Extent"
                 }

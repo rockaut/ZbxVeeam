@@ -126,7 +126,9 @@ function Install-ForAgent {
         $content = @(
             'UserParameter=zbxveeam[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args }" ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'' ''$8'' ''$9'''
             'UserParameter=zbxveeam.discover.jobs[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args }" ''discover'' ''jobs'' ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'''
+            'UserParameter=zbxveeam.discover.repos[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-DiscoverRepositories; }"'
             'UserParameter=zbxveeam.job.details[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args}" ''job'' ''details'' ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'''
+            'UserParameter=zbxveeam.repo.details[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamRepositoryDetails -InstanceUid $args[0] }" ''$1'''
         )
         Set-Content -Value $content -Path $ZbxVeeamConfFile -Force
 
