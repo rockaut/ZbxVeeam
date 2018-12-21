@@ -130,6 +130,7 @@ function Install-ForAgent {
             'UserParameter=zbxveeam.job.details[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamWrapper $args}" ''job'' ''details'' ''$1'' ''$2'' ''$3'' ''$4'' ''$5'' ''$6'' ''$7'''
             'UserParameter=zbxveeam.repo.details[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-ZbxVeeamRepositoryDetails -InstanceUid $args[0] }" ''$1'''
             'UserParameter=zbxveeam.wmi[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { $result = @{}; (Get-WmiObject -Namespace root/veeambs -Query $args[0]).Properties | % { $result[($_.Name)] = $_.Value }; $result | ConvertTo-Json -Compress }" ''$1'''
+            'UserParameter=zbxveeam.discover.wmi[*], powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& { Add-PSSnapin VeeamPsSnapin; Import-Module ZbxVeeam -Force; Get-DiscoverWmi $args; }" ''$1'' ''$2'''
         )
         Set-Content -Value $content -Path $ZbxVeeamConfFile -Force
 
